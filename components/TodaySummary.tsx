@@ -43,7 +43,6 @@ export default function TodaySummary({
   onAdd,
   onEdit,
 }: Props) {
-  // Overnight active night shift takes priority
   const activeShift =
     overnightShift ?? todayShifts.find((s) => s.status === "Active");
 
@@ -124,7 +123,37 @@ export default function TodaySummary({
         </p>
       </div>
 
-      {/* Shift slots */}
+      {/* Overnight card from yesterday */}
+      {overnightShift && (
+        <div>
+          <p className="text-[10px] font-mono text-muted uppercase tracking-wider px-1 mb-2">
+            ← Overnight from yesterday
+          </p>
+          <button
+            onClick={() => onEdit(overnightShift)}
+            className="w-full glass-card p-4 text-left transition-all hover:shadow-md active:scale-[0.99] ring-2 ring-indigo-200 border-indigo-200"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0 bg-indigo-50">
+                🌙
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-bold text-ink">
+                    {overnightShift.assignedTo}
+                  </p>
+                  <StatusBadge status={overnightShift.status} />
+                </div>
+                <p className="text-xs font-medium mt-0.5 text-indigo-700">
+                  Night · carried over from yesterday
+                </p>
+              </div>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Today's shift slots */}
       {shifts.map((slot) => {
         const shift = todayShifts.find((s) => s.shift === slot);
         const meta = SHIFT_META[slot];
