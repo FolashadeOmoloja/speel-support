@@ -36,7 +36,7 @@ export async function PATCH(
     const doc = await Shift.findByIdAndUpdate(
       id,
       { $set: body },
-      { new: true, runValidators: true },
+      { new: true, runValidators: false },
     );
     if (!doc)
       return NextResponse.json(

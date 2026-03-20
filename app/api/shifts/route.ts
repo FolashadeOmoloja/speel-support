@@ -7,20 +7,21 @@ export async function GET(req: NextRequest) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const date = searchParams.get("date");
-    const week = searchParams.get("week"); // YYYY-WW format or start date
+    const week = searchParams.get("week");
 
     let query: Record<string, unknown> = {};
 
     if (date) {
       query.date = date;
     } else if (week) {
-      // Return shifts for the 7-day window starting at `week`
-      const start = new Date(week);
+      const [year, month, day] = week.split("-").map(Number);
       const days: string[] = [];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(start);
-        d.setDate(start.getDate() + i);
-        days.push(d.toISOString().split("T")[0]);
+      // Start from -1 to include yesterday (for overnight shifts)
+      for (let i = -1; i < 7; i++) {
+        const d = new Date(year, month - 1, day + i);
+        days.push(
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+        );
       }
       query.date = { $in: days };
     }
@@ -49,7 +50,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Upsert: if same date+shift exists, update it
     const doc = await Shift.findOneAndUpdate(
       { date, shift },
       { $set: body },
